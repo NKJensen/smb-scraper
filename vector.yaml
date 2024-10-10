@@ -1,0 +1,14 @@
+sources:
+  incomming:
+    type: file
+    include:
+      - "/usr/local/app/utmping.log"
+
+sinks:
+  out-file:
+    type: file
+    inputs:
+     - incomming
+    encoding:
+      codec: json
+    path: "/usr/local/app/utmping.txt"
