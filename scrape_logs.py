@@ -5,9 +5,10 @@ from smb.SMBConnection import SMBConnection
 # Configuration
 smb_server = "samwise.dsb.dk"
 smb_share = "app1"
-smb_file_path = "rosa-appl-1/rosa/log/utmping.log"
-local_file_path = "utmping.log"
-poll_interval = 15  # Poll every 60 seconds
+log_file_name = "utmping.log"
+
+smb_file_path = "rosa-appl-1/rosa/log/"+log_file_name
+poll_interval = 60  # Poll every 60 seconds
 
 # SMB Connection Configuration
 smb_user = ""  # Guest access
@@ -21,7 +22,7 @@ assert conn.connect(smb_server, 139)
 
 def get_file_info():
     try:
-        files = conn.listPath(smb_share, os.path.dirname(smb_file_path))
+        files = conn.listPath(smb_share, os.path.dirname(smb_file_path), pattern=log_file_name)
         for file in files:
             if file.filename == os.path.basename(smb_file_path):
                 return file.create_time
@@ -31,9 +32,9 @@ def get_file_info():
 
 def fetch_file():
     try:
-        with open(local_file_path, 'wb') as file_obj:
+        with open(log_file_name, 'wb') as file_obj:
             conn.retrieveFile(smb_share, smb_file_path, file_obj)
-        print(f"File fetched successfully: {local_file_path}")
+        print(f"File fetched successfully: {log_file_name} from {smb_file_path}.")
     except Exception as e:
         print(f"Error fetching file: {e}")
 
@@ -41,12 +42,10 @@ def main():
     last_info = None
     while True:
         current_info = get_file_info()
-        if current_info and current_info != last_info:
+        if current_info != last_info:
             print(f"File info changed: {current_info}")
             fetch_file()
             last_info = current_info
-        else:
-            print("No change in file info")
         time.sleep(poll_interval)
 
 if __name__ == "__main__":
