@@ -1,8 +1,8 @@
-FROM ubuntu
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
 WORKDIR /usr/local/app
 
-RUN apt update && apt install -y bash curl smbclient nano python3 python3-pip
-RUN pip3 install smb
+RUN apt update && apt install -y bash curl smbclient nano samba python3 python3-pip
+RUN pip3 install pysmb
 
 RUN bash -c "$(curl -L https://setup.vector.dev)"
 RUN apt install -y vector
